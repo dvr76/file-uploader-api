@@ -14,7 +14,7 @@ export function rateLimiter(
   reply: FastifyReply,
   done: () => void,
 ) {
-  const ip = request.ip; // if we are using a reverse proxy we need to forward headers, this is a simplified example
+  const ip = request.ip; // if we are using a reverse proxy we need to use the forwarded ip headers, this is a simplified example
   const now = Date.now();
 
   const entry = store.get(ip);
