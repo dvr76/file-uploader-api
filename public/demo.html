@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Uploader API</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400..700&family=Google+Sans+Code:ital,wght@0,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      body {
+        font-family: "Google Sans", system-ui, sans-serif;
+      }
+      pre {
+        font-family: "Google Sans Code", monospace;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen p-8">
+    <div class="max-w-xl mx-auto">
+      <h1 class="text-2xl font-bold mb-2">File Uploader API</h1>
+
+      <div class="text-sm text-gray-600 space-y-3">
+        <p>
+          <a
+            href="https://github.com/dvr76/file-uploader-api"
+            class="underline"
+          >
+            Source code on GitHub
+          </a>
+        </p>
+        <p>
+          <strong>API endpoint:</strong>
+          <code>POST /api/v1/upload</code>
+        </p>
+
+        <p>
+          This project was built as part of a backend assignment. In a real
+          production system I would normally use presigned S3 upload URLs
+          instead of sending files through the API server.
+        </p>
+
+        <p>
+          I previously completed another assignment (a project management API),
+          but the submission window closed before I could submit it. You can
+          still see the repository here:
+          <a
+            href="https://github.com/dvr76/project-management-api"
+            class="underline"
+            >Repo here</a
+          >.
+        </p>
+      </div>
+
+      <hr class="my-6 border-gray-200" />
+
+      <p class="text-gray-600 text-sm mb-2">
+        Upload a
+        <code class="bg-gray-200 rounded-sm py-0.5">.txt</code> or
+        <code class="bg-gray-200 rounded-sm py-0.5">.csv</code> file.
+      </p>
+      <p class="text-gray-600 text-sm mb-6">
+        Limit: 5 uploads per minute per IP
+      </p>
+      <form id="uploadForm" class="mb-6">
+        <input
+          type="file"
+          id="fileInput"
+          accept=".txt,.csv"
+          class="block w-full border border-gray-300 rounded p-2 mb-3 text-sm"
+        />
+
+        <button
+          type="submit"
+          class="bg-blue-900 active:bg-blue-800 text-white text-sm px-3 py-1 rounded"
+        >
+          Upload
+        </button>
+      </form>
+
+      <pre
+        id="output"
+        class="hidden bg-white border border-gray-200 rounded p-4 text-xs whitespace-pre-wrap"
+      ></pre>
+    </div>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+      const fileInput = document.getElementById("fileInput");
+      const output = document.getElementById("output");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        output.classList.add("hidden");
+        output.classList.remove("text-red-600");
+
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const fd = new FormData();
+        fd.append("file", file);
+
+        try {
+          const res = await fetch("/api/v1/upload", {
+            method: "POST",
+            body: fd,
+          });
+
+          const data = await res.json();
+
+          output.textContent = JSON.stringify(data, null, 2);
+          output.classList.remove("hidden");
+
+          if (!res.ok) {
+            output.classList.add("text-red-600");
+          }
+        } catch (err) {
+          output.textContent = err.message;
+          output.classList.add("text-red-600");
+          output.classList.remove("hidden");
+        }
+      });
+    </script>
+  </body>
+</html>
